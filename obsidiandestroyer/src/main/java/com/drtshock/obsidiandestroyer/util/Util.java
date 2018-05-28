@@ -12,6 +12,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.util.BlockIterator;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
@@ -425,7 +426,7 @@ public class Util {
         }
     }
 
-    public static boolean matchBlocksToLocations(List<Location> list1, List<Block> list2) {
+    public static boolean matchBlocksToLocations(Collection<Location> list1, Collection<Block> list2) {
         for (Location location : list1) {
             if (list2.contains(location.getBlock())) {
                 return true;
@@ -439,7 +440,7 @@ public class Util {
         return false;
     }
 
-    public static boolean matchLocationsToLocations(List<Location> list1, List<Location> list2) {
+    public static boolean matchLocationsToLocations(Collection<Location> list1, Collection<Location> list2) {
         for (Location location : list1) {
             if (list2.contains(location)) {
                 return true;
