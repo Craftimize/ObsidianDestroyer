@@ -168,6 +168,7 @@ public class ChunkManager {
         }
 
         // Check explosion blocks and their distance from the detonation.
+        boolean protectIndustructables = ConfigManager.getInstance().getFluidsProtectIndustructables();
         for (Block block : event.blockList()) {
             // location corrections...
             Location blockLocation = block.getLocation();
@@ -186,7 +187,7 @@ public class ChunkManager {
             final double dist = detonatorLoc.distanceSquared(blockLocation);
 
             // check for liquid overrides and continue if none
-            if (detonatorLoc.getBlock().isLiquid() && ConfigManager.getInstance().getFluidsProtectIndustructables() && !MaterialManager.getInstance().getBypassFluidProtection(block.getType().name(), block.getData())) {
+            if (detonatorLoc.getBlock().isLiquid() && protectIndustructables && !MaterialManager.getInstance().getBypassFluidProtection(block.getType().name(), block.getData())) {
                 continue;
             }
 
@@ -301,7 +302,7 @@ public class ChunkManager {
                     }
 
                     // check for liquid detonator and fluid protection overrides
-                    if (detonatorLoc.getBlock().isLiquid() && ConfigManager.getInstance().getFluidsProtectIndustructables() && !MaterialManager.getInstance().getBypassFluidProtection(targetLoc.getBlock().getType().name(), targetLoc.getBlock().getData())) {
+                    if (detonatorLoc.getBlock().isLiquid() && protectIndustructables && !MaterialManager.getInstance().getBypassFluidProtection(targetLoc.getBlock().getType().name(), targetLoc.getBlock().getData())) {
                         blocksIgnored.add(targetBlock);
                         if (blocksDestroyed.contains(targetBlock)) {
                             blocksDestroyed.remove(targetBlock);
