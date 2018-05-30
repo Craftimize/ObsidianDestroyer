@@ -293,7 +293,7 @@ public class ChunkManager {
                     // Radius of effect of the handled explosion that is recreated
                     final double radiuz = Math.min(radius, Util.getMaxDistance(targetType.name(), targetBlock.getData(), radius)) + 0.6;
                     // Distance of detonator to this blocks location
-                    final double distance = detonatorLoc.distance(targetLoc);
+                    final double distance = detonatorLoc.distanceSquared(targetLoc);
 
                     if (blocksDestroyed.contains(targetBlock)) {
                         // if already tracked this block...
@@ -312,9 +312,13 @@ public class ChunkManager {
                     // Liquid overrides
                     if (ConfigManager.getInstance().getBypassAllFluidProtection()) {
                         // Special handling for fluids is enabled
-                        if (distance < radiuz - 0.1 && (Util.isNearLiquid(targetLoc) || targetBlock.isLiquid())) {
+                        double distanceCheck = radiuz - 0.1;
+                        distanceCheck *= distanceCheck;
+                        if (distance < distanceCheck && (Util.isNearLiquid(targetLoc) || targetBlock.isLiquid())) {
                             // if within radius and is a near or a fluid
-                            if (distance > radiuz - 0.6 && Math.random() <= 0.4) {
+                            distanceCheck = radiuz - 0.6;
+                            distanceCheck *= 2;
+                            if (distance > distanceCheck && Math.random() <= 0.4) {
                                 // semi random radius calculation for edges
                                 blocksIgnored.add(targetBlock);
                                 continue;
@@ -356,16 +360,18 @@ public class ChunkManager {
                     }
 
                     // Radius
-                    if (distance <= radiuz) {
+                    if (distance <= radiuz * radiuz) {
                         // Block damage within the radius
-                        if (distance > radiuz - 0.4 && Math.random() <= 0.2) {
+                        double distanceCheck = radiuz - 0.4;
+                        distanceCheck *= distanceCheck;
+                        if (distance > distanceCheck && Math.random() <= 0.2) {
                             // semi random edge radius calculation
                             blocksIgnored.add(targetBlock);
                             continue;
                         }
 
                         // Damage bleeding fix
-                        if (ConfigManager.getInstance().getDisableDamageBleeding() && distance > 1.8 && (detonator == null || !detonator.getType().equals(EntityType.WITHER))) {
+                        if (ConfigManager.getInstance().getDisableDamageBleeding() && distance > 1.8 * 1.8 && (detonator == null || !detonator.getType().equals(EntityType.WITHER))) {
                             // Radial hitscan check for blocking blocks, returns the blocking path
                             final List<Location> path = Util.getTargetsPathBlocked(targetLoc, detonatorLoc, false);
 
@@ -377,7 +383,7 @@ public class ChunkManager {
                                     blocksIgnored.add(targetBlock);
                                     ObsidianDestroyer.vdebug("[L] Blocked Bleeding Path Damage!! Blocked: " + targetLoc.toString() + " -dist " + distance + " -size " + path.size());
                                     continue;
-                                } else if (path.size() > 2 || distance >= 3) {
+                                } else if (path.size() > 2 || distance >= 3 * 3) {
                                     // the block is too far away and or its protected path is too long
                                     blocksIgnored.add(targetBlock);
                                     ObsidianDestroyer.vdebug("[L] Blocked Bleeding Path Damage!! Over: " + targetLoc.toString() + " -dist " + distance + " -size " + path.size());
