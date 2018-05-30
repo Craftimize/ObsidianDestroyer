@@ -183,7 +183,7 @@ public class ChunkManager {
                 blockLocation.setZ(blockLocation.getBlockZ() + -0.5);
             }
             // distance from detonator to the target block
-            final double dist = detonatorLoc.distance(blockLocation);
+            final double dist = detonatorLoc.distanceSquared(blockLocation);
 
             // check for liquid overrides and continue if none
             if (detonatorLoc.getBlock().isLiquid() && ConfigManager.getInstance().getFluidsProtectIndustructables() && !MaterialManager.getInstance().getBypassFluidProtection(block.getType().name(), block.getData())) {
@@ -191,14 +191,16 @@ public class ChunkManager {
             }
 
             // Damage bleeding fix
+            double checkDist = Util.getMaxDistance(block.getType().name(), block.getData(), radius) + 0.4;
+            checkDist *= checkDist;
             if (ConfigManager.getInstance().getDisableDamageBleeding() && (detonator == null || !detonator.getType().equals(EntityType.WITHER))) {
                 // Attempt to prevent bleeding of damage to materials behind blocks not destroyed
                 if (MaterialManager.getInstance().contains(block.getType().name(), block.getData())) {
                     // distance checks: if max ignore; if not too close check sight; else apply damage
-                    if (dist > Util.getMaxDistance(block.getType().name(), block.getData(), radius) + 0.4) {
+                    if (dist > checkDist) {
                         blocksIgnored.add(block);
                         continue;
-                    } else if (dist > 1.8) {
+                    } else if (dist > 1.8 * 1.8) {
                         // if greater than target distance apply hit check
                         // Radial hitscan check for blocking blocks, returns the blocking path
                         final List<Location> path = Util.getTargetsPathBlocked(blockLocation, detonatorLoc, false);
@@ -235,7 +237,7 @@ public class ChunkManager {
                 }
             } else if (MaterialManager.getInstance().contains(block.getType().name(), block.getData())) {
                 // Original handling
-                if (dist > Util.getMaxDistance(block.getType().name(), block.getData(), radius) + 0.4) {
+                if (dist > checkDist) {
                     blocksIgnored.add(block);
                 } else {
                     // Apply damage to block material
